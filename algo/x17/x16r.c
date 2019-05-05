@@ -71,12 +71,20 @@ void x16r_hash( void* output, const void* input )
    void *in = (void*) input;
    int size = 80;
 
+#if 1 //generate hashOrder for each nonce
+   sph_keccak512_context idx_keccak;
+   sph_keccak512_init( &idx_keccak );
+   sph_keccak512( &idx_keccak, in, size );
+   sph_keccak512_close( &idx_keccak, hash );
+   uint8_t* in8 = (uint8_t*)hash;
+   x16_r_s_getAlgoString( &in8[15], hashOrder );
+#else
    if ( s_ntime == UINT32_MAX )
    {
       const uint8_t* in8 = (uint8_t*) input;
       x16_r_s_getAlgoString( &in8[4], hashOrder );
    }
-
+#endif
    for ( int i = 0; i < 16; i++ )
    {
       const char elem = hashOrder[i];

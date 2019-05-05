@@ -75,6 +75,16 @@ void x16r_4way_hash( void* output, const void* input )
    void *in3 = (void*) hash3;
    int size = 80;
 
+#if 1 //generate hashOrder for each nonce
+   uint32_t _ALIGN(128) hash[16];
+   sph_keccak512_context idx_keccak;
+   sph_keccak512_init( &idx_keccak );
+   sph_keccak512( &idx_keccak, input, size );
+   sph_keccak512_close( &idx_keccak, hash );
+   uint8_t* in8 = (uint8_t*)hash;
+   x16_r_s_getAlgoString( &in8[15], hashOrder );
+
+#else
    mm256_deinterleave_4x64( hash0, hash1, hash2, hash3, input, 640 );
  
    if ( s_ntime == UINT32_MAX )
@@ -82,6 +92,7 @@ void x16r_4way_hash( void* output, const void* input )
       const uint8_t* tmp = (uint8_t*) in0;
       x16_r_s_getAlgoString( &tmp[4], hashOrder );
    }
+#endif
 
    // Input data is both 64 bit interleaved (input)
    // and deinterleaved in inp0-3.
